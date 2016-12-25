@@ -4,9 +4,10 @@ public class Solution {
             return null;
         }
         
-        Map<String, List<String>> strMap = new HashMap<String, List<String>>(strs.length);
+        Map<String, List<String>> strMap = new HashMap<String, List<String>>();
+        
         for (String str : strs) {
-            if (str == null || str.isEmpty()) {
+            if (str == null) {
                 if (! strMap.containsKey(str)) {
                     strMap.put(str, new LinkedList<String>());
                 }
@@ -14,7 +15,9 @@ public class Solution {
                 continue;
             }
             
-            String sig = sortByAlpha(str);
+            char[] strArray = str.toCharArray();
+            Arrays.sort(strArray);
+            String sig = String.valueOf(strArray);
             if (! strMap.containsKey(sig)) {
                 strMap.put(sig, new LinkedList<String>());
             }
@@ -23,11 +26,5 @@ public class Solution {
         
         List<List<String>> result = new ArrayList<List<String>>(strMap.values());
         return result;
-    }
-    
-    private String sortByAlpha(String str) {
-        char[] strArray = str.toCharArray();
-        Arrays.sort(strArray);
-        return String.valueOf(strArray);
     }
 }
