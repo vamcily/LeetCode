@@ -1,83 +1,80 @@
 public class Solution {
     public String longestPalindrome(String s) {
-        char[] cs = s.toCharArray();
+      char[] cs = s.toCharArray();
         
-        Map<Integer, List<Range>> palindromes = new HashMap<Integer, List<Range>>();
+        Map<Integer, int[]> palindromeStart = new HashMap<Integer, int[]>();
+        Map<Integer, int[]> palindromeEnd = new HashMap<Integer, int[]>();
         
-        List<Range> oneList = new ArrayList<Range>();
-        palindromes.put(1, oneList);
+        int[] oneStartList = new int[cs.length];
+        int[] oneEndList = new int[cs.length];
+        palindromeStart.put(1, oneStartList);
+        palindromeEnd.put(1, oneEndList);
         for (int idx = 0; idx < cs.length; idx++) {
-            oneList.add(new Range(idx, idx));
+            oneStartList[idx] = idx;
+            oneEndList[idx] = idx;
         }
         
-        List<Range> twoList = new ArrayList<Range>();
+        int[] twoStartList = new int[cs.length - 1];
+        int[] twoEndList =  new int[cs.length - 1];
+        int validLength = 0;
         for (int idx = 0; idx < cs.length - 1; idx++) {
-            if (isPalindrome(cs, idx, idx + 1)) {
-                twoList.add(new Range(idx, idx + 1));
+            if (cs[idx] == cs[idx + 1]) {
+                twoStartList[validLength] = idx;
+                twoEndList[validLength] = idx + 1;
+                validLength++;
             }
         }
-        if (twoList.size() > 0) {
-            palindromes.put(2, twoList);
+        if (validLength > 0) {
+            palindromeStart.put(2, twoStartList);
+            palindromeEnd.put(2, twoEndList);
+            if (validLength < twoStartList.length) {
+                twoStartList[validLength] = -1;
+                twoEndList[validLength] = -1;
+            }
         }
         
         for (int num = 3; num <= cs.length; num++) {
-            List<Range> preList = palindromes.get(num - 2);
-            if (preList == null) {
-                break;
+            int[] preStartList = palindromeStart.get(num - 2);
+            int[] preEndList = palindromeEnd.get(num - 2);
+            if (preStartList == null) {
+                continue;
             }
             
-            List<Range> curList = new ArrayList<Range>();
-            for (Range r : preList) {
-                if (isPalindrome(cs, r.start - 1, r.end + 1)) {
-                    curList.add(new Range(r.start - 1, r.end + 1));
+            int[] curStartList = new int[cs.length - num + 1];
+            int[] curEndList = new int[cs.length - num + 1];
+            validLength = 0;
+            for (int idx = 0; idx < preStartList.length; idx++) {
+                if (preStartList[idx] == -1) {
+                    break;
+                }
+                int start = preStartList[idx] - 1;
+                int end = preEndList[idx] + 1;
+                if (start < 0 || end > cs.length - 1) {
+                    continue;
+                }
+                if (cs[start] == cs[end]) {
+                    curStartList[validLength] = start;
+                    curEndList[validLength] = end;
+                    validLength++;
                 }
             }
             
-            if (curList.size() > 0) {
-                palindromes.put(num, curList);
+            if (validLength > 0) {
+                palindromeStart.put(num, curStartList);
+                palindromeEnd.put(num, curEndList);
+                if (validLength < curStartList.length) {
+                    curStartList[validLength] = -1;
+                    curStartList[validLength] = -1;
+                }
             }
         }
         
         for (int num = cs.length; num > 0; num--) {
-            if (palindromes.containsKey(num)) {
-                Range r = palindromes.get(num).get(0);
-                return s.substring(r.start, r.end + 1);
+            if (palindromeStart.containsKey(num)) {
+                return s.substring(palindromeStart.get(num)[0], palindromeEnd.get(num)[0] + 1);
             }
         }
         
         return s.substring(0, 1);
-    }
-    
-    private static class Range {
-        int start;
-        int end;
-        
-        Range(int s, int e) {
-            start = s;
-            end = e;
-        }
-    }
-    
-    private boolean isPalindrome(char[] str, int start, int end) {
-        if (start < 0 || end > str.length - 1) {
-            return false;
-        }
-        
-        int i = start; 
-        int j = end;
-        
-        boolean ret = true;
-        
-        while (i < j) {
-            if (str[i] != str[j]) {
-                ret = false;
-                break;
-            }
-            
-            i++;
-            j--;
-        }
-        
-        return ret;
     }
 }
