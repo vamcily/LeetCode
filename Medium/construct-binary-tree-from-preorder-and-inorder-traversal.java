@@ -14,47 +14,25 @@ public class Solution {
 			return null;
 		}
 
-		Map<Integer, Integer> revIndex = new HashMap<Integer, Integer>(
-				inorder.length);
-		for (int idx = 0; idx < inorder.length; idx++) {
-			revIndex.put(inorder[idx], idx);
-		}
+		return buildTreeNode(preorder, inorder, 0, 0, inorder.length - 1);
+    }
 
-		TreeNode root = new TreeNode(preorder[0]);
-		TreeNode parNode = null;
-		TreeNode curNode = null;
+    public TreeNode buildTreeNode(int[] preorder, int[] inorder, int preIdx, int inStart, int inEnd) {
+    	if (preIdx > preorder.length - 1 || inStart > inEnd) {
+    		return null;
+    	}
 
-		outer: for (int val : preorder) {
-			boolean isLeft = false;
-			parNode = root;
-			do {
-				int parVal = parNode.val;
-				int parIdx = revIndex.get(parVal);
-				int curIdx = revIndex.get(val);
-				if (curIdx < parIdx) {
-					isLeft = true;
-					curNode = parNode.left;
-				} else if (curIdx > parIdx) {
-					isLeft = false;
-					curNode = parNode.right;
-				} else {
-					continue outer;
-				}
-				if (curNode != null) {
-					parNode = curNode;
-				}
-			} while (curNode != null);
+    	TreeNode curNode = new TreeNode(preorder[preIdx]);
+    	int inIdx = 0;
+    	for (int i = inStart; i <= inEnd; i++) {
+    		if (inorder[i] == curNode.val) {
+    			inIdx = i;
+    		}
+    	}
 
-			curNode = new TreeNode(val);
-			if (isLeft) {
-				parNode.left = curNode;
-			} else {
-				parNode.right = curNode;
-			}
+    	curNode.left = buildTreeNode(preorder, inorder, preIdx + 1, inStart, inIdx - 1);
+    	curNode.right = buildTreeNode(preorder, inorder, preIdx + inIdx - inStart + 1, inIdx + 1, inEnd);
 
-			curNode = null;
-		}
-
-		return root;
+    	return curNode;
     }
 }
